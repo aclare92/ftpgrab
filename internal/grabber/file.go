@@ -25,8 +25,11 @@ func (c *Client) ListFiles() []File {
 		// Check basedir
 		dest := c.config.Output
 		if src != "/" && *c.config.CreateBaseDir {
-			dest = path.Join(dest, src)
+			basename := path.Base(src)
+			dest = path.Join(dest, basename)
 		}
+		
+		log.Debug().Str("destination", dest).Msg("Destination path")
 
 		files = append(files, c.readDir(src, src, dest)...)
 	}
