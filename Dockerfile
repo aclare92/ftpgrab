@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION="1.19"
-ARG ALPINE_VERSION="3.17"
-ARG XX_VERSION="1.1.2"
+ARG GO_VERSION="1.21"
+ARG ALPINE_VERSION="3.18"
+ARG XX_VERSION="1.3.0"
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS base
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 COPY --from=xx / /
 ENV CGO_ENABLED=0
 RUN apk add --no-cache file git
@@ -63,6 +63,8 @@ FROM binary-unix AS binary-darwin
 FROM binary-unix AS binary-freebsd
 FROM binary-unix AS binary-linux
 FROM binary-$TARGETOS AS binary
+# enable scanning for this stage
+ARG BUILDKIT_SBOM_SCAN_STAGE=true
 
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS build-artifact
 RUN apk add --no-cache bash tar zip

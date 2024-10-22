@@ -26,12 +26,12 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Validate targets matrix
         id: validate-targets
         run: |
-          echo "matrix=$(docker buildx bake validate --print | jq -cr '.group.default.targets')" >> $GITHUB_OUTPUT
+          echo "matrix=$(docker buildx bake validate --print | jq -cr '.target | keys')" >> $GITHUB_OUTPUT
       -
         name: Artifact platforms matrix
         id: artifact-platforms
@@ -49,13 +49,13 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Validate
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           targets: ${{ matrix.target }}
 
@@ -64,23 +64,24 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Test
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           targets: test
           pull: true
       -
         name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           directory: ${{ env.DESTDIR }}/coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   artifact:
     runs-on: ubuntu-latest
@@ -99,30 +100,45 @@ jobs:
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Build
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           targets: artifact
+          provenance: mode=max
+          sbom: true
           pull: true
           set: |
             *.platform=${{ matrix.platform }}
             *.cache-from=type=gha,scope=artifact-${{ env.PLATFORM_PAIR }}
             *.cache-to=type=gha,scope=artifact-${{ env.PLATFORM_PAIR }},mode=max
       -
+        name: Rename provenance and sbom
+        working-directory: ${{ env.DESTDIR }}/artifact
+        run: |
+          binname=$(find . -name 'ftpgrab_*')
+          filename=$(basename "$binname" | sed -E 's/\.(tar\.gz|zip)$//')
+          mv "provenance.json" "${filename}.provenance.json"
+          mv "sbom-binary.spdx.json" "${filename}.sbom.json"
+          find . -name 'sbom*.json' -exec rm {} \;
+      -
+        name: List artifacts
+        run: |
+          tree -nh ${{ env.DESTDIR }}
+      -
         name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ftpgrab
+          name: ftpgrab-${{ env.PLATFORM_PAIR }}
           path: ${{ env.DESTDIR }}
           if-no-files-found: error
 
@@ -134,24 +150,30 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ftpgrab
           path: ${{ env.DESTDIR }}
+          pattern: ftpgrab-*
+          merge-multiple: true
+      -
+        name: List artifacts
+        run: |
+          tree -nh ${{ env.DESTDIR }}
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Build
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           targets: release
+          provenance: false
       -
         name: GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
@@ -168,7 +190,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
@@ -185,7 +207,7 @@ jobs:
       -
         name: Docker meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             ${{ env.DOCKERHUB_SLUG }}
@@ -202,33 +224,35 @@ jobs:
             org.opencontainers.image.vendor=CrazyMax
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Login to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           targets: image-all
+          provenance: mode=max
+          sbom: true
           pull: true
           push: ${{ github.event_name != 'pull_request' }}
           set: |

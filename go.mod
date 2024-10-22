@@ -1,26 +1,26 @@
 module github.com/crazy-max/ftpgrab/v7
 
-go 1.18
+go 1.21
 
 require (
-	github.com/alecthomas/kong v0.7.1
+	github.com/alecthomas/kong v0.9.0
 	github.com/crazy-max/gonfig v0.7.1
 	github.com/docker/go-units v0.5.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
-	github.com/go-playground/validator/v10 v10.13.0
+	github.com/go-playground/validator/v10 v10.22.0
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/ilya1st/rotatewriter v0.0.0-20171126183947-3df0c1a3ed6d
-	github.com/jlaffaye/ftp v0.1.1-0.20230214004652-d84bf4be2b6e
+	github.com/jlaffaye/ftp v0.2.0
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/nlopes/slack v0.6.0
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.13.5
+	github.com/pkg/sftp v1.13.6
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rs/zerolog v1.29.1
-	github.com/stretchr/testify v1.8.2
-	go.etcd.io/bbolt v1.3.7
-	golang.org/x/crypto v0.8.0
-	golang.org/x/sys v0.8.0
+	github.com/rs/zerolog v1.33.0
+	github.com/stretchr/testify v1.9.0
+	go.etcd.io/bbolt v1.3.10
+	golang.org/x/crypto v0.21.0
+	golang.org/x/sys v0.18.0
 )
 
 require (
@@ -31,6 +31,7 @@ require (
 	github.com/andybalholm/cascadia v1.0.0 // indirect
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/google/uuid v1.0.0 // indirect
@@ -42,9 +43,9 @@ require (
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20180606194806-57d518f124b0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/leodido/go-urn v1.2.3 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.3 // indirect
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -53,8 +54,8 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20191214114701-be27abe028fe // indirect
-	golang.org/x/net v0.9.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
