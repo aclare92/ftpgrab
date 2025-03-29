@@ -22,6 +22,7 @@ type Download struct {
 	HideSkipped   *bool       `yaml:"hideSkipped,omitempty" json:"hideSkipped,omitempty"`
 	TempFirst     *bool       `yaml:"tempFirst,omitempty" json:"tempFirst,omitempty"`
 	CreateBaseDir *bool       `yaml:"createBaseDir,omitempty" json:"createBaseDir,omitempty"`
+	BaseDirRemoveParent *bool `yaml:"baseDirRemoveParent,omitempty" json:"baseDirRemoveParent,omitempty"`
 }
 
 // GetDefaults gets the default values
@@ -41,4 +42,5 @@ func (s *Download) SetDefaults() {
 	s.HideSkipped = utl.NewFalse()
 	s.TempFirst = utl.NewFalse()
 	s.CreateBaseDir = utl.NewFalse()
+	s.BaseDirRemoveParent = utl.NewFalse()
 }
